@@ -1,5 +1,4 @@
 import keras
-import theano
 from keras.regularizers import l2
 from keras.optimizers import Adam
 from keras.models import Sequential, Model
