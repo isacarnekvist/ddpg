@@ -1,3 +1,5 @@
+import json
+
 import keras
 from keras.regularizers import l2
 from keras.optimizers import Adam
@@ -5,7 +7,20 @@ from keras.models import Sequential, Model
 from keras.layers import Dense, BatchNormalization, Input, merge, Merge
 
 
-class Critic:
+class DDPG:
+
+    def load_params(self, filename):
+        with open(filename, 'r') as f:
+            params_list = json.loads(f.read())
+        [p.set_value(p_saved) for p, p_saved in zip(self.q.weights, params_list)]
+
+    def save_params(self, filename):
+        params_list = [p.get_value().tolist() for p in self.q.weights]
+        with open(filename, 'w') as f:
+            f.write(json.dumps(params_list))
+
+
+class Critic(DDPG):
     
     def build(self, x, u):
         y = merge([x, u], mode='concat', name='x_u_merge')
@@ -36,7 +51,7 @@ def loss(y_true, y_pred):
     return -y_pred
 
 
-class Actor:
+class Actor(DDPG):
     
     def __init__(self, x_size, u_size, critic):
         x = Input(shape=(x_size,), name='actor_x')
