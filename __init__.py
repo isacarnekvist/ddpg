@@ -11,13 +11,13 @@ class DDPG:
 
     def load_params(self, filename):
         with open(filename, 'r') as f:
-            params_list = json.loads(f.read())
+            params_list = json.load(f)
         [p.set_value(p_saved) for p, p_saved in zip(self.q.weights, params_list)]
 
     def save_params(self, filename):
         params_list = [p.get_value().tolist() for p in self.q.weights]
         with open(filename, 'w') as f:
-            f.write(json.dumps(params_list))
+            json.dump(params_list, f)
 
 
 class Critic(DDPG):
@@ -31,7 +31,6 @@ class Critic(DDPG):
     def __init__(self, x_size, u_size):
         x = Input(shape=(x_size,))
         u = Input(shape=(u_size,))
-        self.layers = []
         self.layers = [
             BatchNormalization(name='critic_bn1', input_shape=(x_size + u_size,)),
             Dense(input_dim=(x_size,), W_regularizer=l2(), activation='elu', output_dim=400, name='critic_fc1'),
